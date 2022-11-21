@@ -9,7 +9,6 @@
             [ link](/trajectory.txt)
       * ElasticFusion format: translation(tx, ty, tz) and quaterion(qx, qy, qz, qw)
             [ link](/trajectory.posegraph)
-
-        
-
+      * Run [Tmat_to_qut.py](/Tmat_to_qut.py) to convert camera odometry from Open3D format to ElasticFusion format.
+    
 ![transformation](assets/img/transformation.png)
