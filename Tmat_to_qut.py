@@ -7,43 +7,52 @@
 
 import numpy as np
 import scipy as sp
-import os
-import sys
-import logging
 
+#timestamp
+timestamp = "0.0"  #timestamp is not available in the log file from Open3D
+# Read the file
+print("Reading file...")
+file = open('trajectory.txt', "r")
+lines = file.readlines()
+file.close()
+print("File read............ok!")
 
-def main():
-    
-        # Read the file
-        file = open(sys.argv[1], "r")
-        lines = file.readlines()
-        file.close()
-    
-        # Create a new file
-        new_file = open(sys.argv[1] + ".posegraph", "w")
-    
-        # Read the transformation matrix
-        for line in lines:
-            iters = 0    # Number of iterations of loop
-            num = line.split(" ")[0]
-            if type(num) == int:
-                index = 0
-                pass
+# Create a new file
+print("Creating new file............")
+new_file = open('trajectory'+ ".posegraph", "w")
 
-            elif  type(num) == int:
-                Tmat = np.array([float(x) for x in line.split(" ")[:]]).reshape(4, 4)
-                break
-    
+# Get transformation matrix from file
+Tmat = np.zeros((4,4))
+iters = 0   # Number of iterations of loop
+for line in lines[:]:
+    #print(line)
+    if iters%5 == 0:  # Every 5th line is the metadata. Skip it
+        #print('skipping line') 
+        pass
+    else:             # Read the transformation matrix 4 lines after the metadata
+        i_iters = 0
+        for x in line.split(" ")[:4]:
+            Tmat[iters%5-1 ,i_iters] = str(x)
+            if (iters%5-1 == 0 and i_iters == 3):     # Extract the translation tx,ty,tz
+                tx = float(x)
+                #print(tx)
+            elif (iters%5-1 == 1 and i_iters == 3):
+                ty = float(x)
+                #print(ty)
+            elif (iters%5-1 == 2 and i_iters == 3):
+                tz = float(x)
+                #print(tz)
+            i_iters += 1
+    iters+=1
+
+    if iters%5 == 4:
+        #print(Tmat)
         # Convert to quaternion
-        qut = sp.spatial.transform.Rotation.from_matrix(Tmat[:3, :3]).as_quat()
-    
+        quterion = sp.spatial.transform.Rotation.from_matrix(Tmat[:3, :3]).as_quat()
+        #print(quterion)
+        #print(tx,ty,tz)
+        #print(iters%5-1)
         # Write the quaternion and coordinates to the new file
-        new_file.write("qut " + " ".join([str(x) for x in qut]) + "")
-
-
-#read matrix from txt file
-def read_matrix(file):
-    matrix = []
-    for line in file:
-        matrix.append([float(x) for x in line.split()])
-    return matrix
+        new_file.write(timestamp+ "\t"+ str(tx) + "\t"+ str(ty) + "\t" + str(tz) + "\t" + str(quterion[0]) + "\t" + str(quterion[1]) + "\t" + str(quterion[2]) + "\t" + str(quterion[3]) + "\n")  
+                
+print("Done!")
