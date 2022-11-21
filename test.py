@@ -60,10 +60,6 @@ def main():
             #print(quterion)
             #print(tx,ty,tz)
             #print(type(tx))
-            #print(type(quterion[0]))
-            #print(quterion[0])
-            #print(str(quterion[1]))
-            #print(type(str(quterion[1])))
 
             # Write the quaternion and coordinates to the new file
             new_file.write(timestamp+ "\t"+ str(tx) + "\t"+ str(ty) + "\t" + str(tz) + "\t" + str(quterion[0]) + "\t" + str(quterion[1]) + "\t" + str(quterion[2]) + "\t" + str(quterion[3]) + "\n") 
