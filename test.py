@@ -24,45 +24,46 @@ def main():
 
         # Create a new file
         new_file = open('trajectory'+ ".posegraph", "w")
+
         
-        for mat_line in range(0,len(lines),  5) :
-        #for mat_line in range(0,5,  5) :
-            # Get transformation matrix from file
-            Tmat = np.zeros((4,4))
+        # Get transformation matrix from file
+        Tmat = np.zeros((4,4))
 
-            iters = 0   # Number of iterations of loop
-            for line in lines[:]:
-                #print(line)
-                if iters%5 == 0:  # Every 5th line is the metadata. Skip it
-                    #print('skipping line') 
-                    pass
+        iters = 0   # Number of iterations of loop
+        for line in lines[:]:
+            #print(line)
+            if iters%5 == 0:  # Every 5th line is the metadata. Skip it
+                #print('skipping line') 
+                pass
 
-                else:             # Read the transformation matrix 4 lines after the metadata
-                    i_iters = 0
-                    for x in line.split(" ")[:]:
-                        Tmat[iters%5-1 ,i_iters] = str(x)
+            else:             # Read the transformation matrix 4 lines after the metadata
+                i_iters = 0
+                for x in line.split(" ")[:4]:
+                    Tmat[iters%5-1 ,i_iters] = str(x)
+                    if (iters%5-1 == 0 and i_iters == 3):     # Extract the translation tx,ty,tz
+                        tx = float(x)
+                        #print(iters%5-1)
+                        #print(tx)
+                    elif (iters%5-1 == 1 and i_iters == 3):
+                        ty = float(x)
+                        #print(ty)
+                    elif (iters%5-1 == 2 and i_iters == 3):
+                        tz = float(x)
+                        #print(tz)
+                    i_iters += 1
 
-                        if iters%5-1 == 0 and i_iters == 3:     # Extract the translation tx,ty,tz
-                            tx = float(x)
-                        elif iters%5-1 == 1 and i_iters == 3:
-                            ty = float(x)
-                        elif iters%5-1 == 2 and i_iters == 3:
-                            tz = float(x)
+            iters+=1
 
-                        i_iters += 1
-
-                iters+=1
-
-            #print(Tmat)
-
-            # Convert to quaternion
-            quterion = sp.spatial.transform.Rotation.from_matrix(Tmat[:3, :3]).as_quat()
-            #print(quterion)
-            #print(tx,ty,tz)
-            #print(type(tx))
-
-            # Write the quaternion and coordinates to the new file
-            new_file.write(timestamp+ "\t"+ str(tx) + "\t"+ str(ty) + "\t" + str(tz) + "\t" + str(quterion[0]) + "\t" + str(quterion[1]) + "\t" + str(quterion[2]) + "\t" + str(quterion[3]) + "\n") 
+            if iters%5 == 4:
+                #print(Tmat)
+                # Convert to quaternion
+                quterion = sp.spatial.transform.Rotation.from_matrix(Tmat[:3, :3]).as_quat()
+                #print(quterion)
+                #print(tx,ty,tz)
+                #print(iters%5-1)
+                # Write the quaternion and coordinates to the new file
+                new_file.write(timestamp+ "\t"+ str(tx) + "\t"+ str(ty) + "\t" + str(tz) + "\t" + str(quterion[0]) + "\t" + str(quterion[1]) + "\t" + str(quterion[2]) + "\t" + str(quterion[3]) + "\n")  
+                
 
 
 main()
